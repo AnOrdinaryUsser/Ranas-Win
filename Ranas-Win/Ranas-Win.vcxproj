@@ -149,6 +149,9 @@
   <ItemGroup>
     <ClCompile Include="Ranas-Win.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ranas.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
