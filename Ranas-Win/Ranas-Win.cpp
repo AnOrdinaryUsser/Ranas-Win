@@ -9,22 +9,25 @@
 #define VER_MIN 0
 #define VER_MAX 11
 
+//CREAR STRUCT IPC RANAS
+HINSTANCE globalRanasDLL;
+
 //(Y = 0 y 3) == antes de cruzar el río.
 //(Y = 11)    == orilla
 
 
 /* Punteros a las funciones */
-BOOL * AvanceRana(int*, int*, int);
-BOOL * AvanceRanaFin(int, int);
-BOOL * AvanceRanaIni(int, int);
-BOOL * AvanceTroncos(int i);
-BOOL * ComprobarEstadIsticas(LONG, LONG, LONG);
-BOOL * FinRanas(void);
-BOOL * InicioRanas(int, int*, int*, int*, int, TIPO_CRIAR);
-BOOL * PartoRanas(int);
-void * Pausa(void);
-BOOL * PuedoSaltar(int, int, int);
-void * PrintMsg(char*);
+BOOL (* AvanceRana1)(int*, int*, int);
+BOOL (* AvanceRanaFin1)(int, int);
+BOOL (* AvanceRanaIni1)(int, int);
+BOOL (* AvanceTroncos1)(int i);
+BOOL (* ComprobarEstadIsticas1)(LONG, LONG, LONG);
+BOOL (* FinRanas1)(void);
+BOOL (* InicioRanas1)(int, int*, int*, int*, int, TIPO_CRIAR);
+BOOL (* PartoRanas1)(int);
+void (* Pausa1)(void);
+BOOL (* PuedoSaltar1)(int, int, int);
+void (* PrintMsg1)(char*);
 
 //FUNCIONES
 void tratarArg(int argc, char* argv[]);
@@ -33,6 +36,7 @@ int cargarRanas();
 //MAIN
 int main(int argc, char* argv[])
 {
+	system("mode con:cols=80 lines=25"); //FIJA AUTOMÁTICAMENTE A 80x25
 	/*
 	HANDLE hilo1, hilo2;
 	CHAR char1, char2;
@@ -48,7 +52,8 @@ int main(int argc, char* argv[])
 		PERROR("Error al cargar la biblioteca ranas.");
 		exit(2);
 	}
-
+	
+	Sleep(5000);
 	/*
 	//PRIORIDAD DEL PROCESO NORMAL --> IDLE
 	if (SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS) == false) {
@@ -112,15 +117,82 @@ if (param2 <= 0) {
 
 //FUNCION CARGAR LIBRERIA RANAS.DLL
 int cargarRanas() {
-	HINSTANCE controladorDll;
+	HINSTANCE ranasDLL;
 
-	controladorDll = LoadLibrary("ranas.dll");
-	if (NULL == controladorDll) {
-		fprintf(stderr, "%s\n", "ErrorLoadLibrary");
+	ranasDLL = LoadLibrary("ranas.dll");
+	if (NULL == ranasDLL) {
+		PERROR("Error al cargar ranas.dll (LoadLibrary).");
 		return -1;
 	}
 
-	BOOL InicioRanas(int delta_t, int lTroncos[], int lAguas[], int dirs[], int t_Criar, TIPO_CRIAR f_Criar);
+	globalRanasDLL = ranasDLL; //Guardamos el puntero del fichero DLL
+
+	AvanceRana1 = (BOOL(*)(int *,int *,int)) GetProcAddress(ranasDLL, "AvanceRana");
+	if (AvanceRana1 == NULL) {
+		PERROR("Error en GetProcAddress: AvanceRana.");
+		return -1;
+	}
+
+	AvanceRanaFin1 = (BOOL(*)(int, int)) GetProcAddress(ranasDLL, "AvanceRanaFin");
+	if (AvanceRanaFin1 == NULL) {
+		PERROR("Error en GetProcAddress: AvanceRanaFin.");
+		return -1;
+	}
+
+	AvanceRanaIni1 = (BOOL(*)(int, int)) GetProcAddress(ranasDLL, "AvanceRanaIni");
+	if (AvanceRanaIni1 == NULL) {
+		PERROR("Error en GetProcAddress: AvanceRanaIni.");
+		return -1;
+	}
+
+	AvanceTroncos1 = (BOOL(*)(int i)) GetProcAddress(ranasDLL, "AvanceTroncos");
+	if (AvanceTroncos1 == NULL) {
+		PERROR("Error en GetProcAddress: AvanceTroncos.");
+		return -1;
+	}
+
+	ComprobarEstadIsticas1 = (BOOL(*)(LONG, LONG, LONG)) GetProcAddress(ranasDLL, "ComprobarEstadIsticas");
+	if (ComprobarEstadIsticas1 == NULL) {
+		PERROR("Error en GetProcAddress: ComprobarEstadIsticas.");
+		return -1;
+	}
+
+	FinRanas1 = (BOOL(*)(void)) GetProcAddress(ranasDLL, "FinRanas");
+	if (FinRanas1 == NULL) {
+		PERROR("Error en GetProcAddress: FinRanas.");
+		return -1;
+	}
+
+	InicioRanas1 = (BOOL(*)(int, int*, int*, int*, int, TIPO_CRIAR)) GetProcAddress(ranasDLL, "InicioRanas");
+	if (InicioRanas1 == NULL) {
+		PERROR("Error en GetProcAddress: InicioRanas.");
+		return -1;
+	}
+
+	PartoRanas1 = (BOOL(*)(int)) GetProcAddress(ranasDLL, "PartoRanas");
+	if (PartoRanas1 == NULL) {
+		PERROR("Error en GetProcAddress: PartoRanas.");
+		return -1;
+	}
+	Pausa1 = (void(*)(void)) GetProcAddress(ranasDLL, "Pausa");
+	if (Pausa1 == NULL) {
+		PERROR("Error en GetProcAddress: Pausa.");
+		return -1;
+	}
+
+	PuedoSaltar1 = (BOOL(*)(int, int, int)) GetProcAddress(ranasDLL, "PuedoSaltar");
+	if (PuedoSaltar1 == NULL) {
+		PERROR("Error en GetProcAddress: PuedoSaltar.");
+		return -1;
+	}
+	
+	PrintMsg1 = (void(*)(char*)) GetProcAddress(ranasDLL, "PrintMsg");
+	if (PrintMsg1 == NULL) {
+		PERROR("Error enGetProcAddress: PrintMsg.");
+		return -1;
+	}
+
+	return 0;
 }
 
 /*
