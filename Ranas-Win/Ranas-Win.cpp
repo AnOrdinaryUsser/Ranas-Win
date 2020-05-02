@@ -13,6 +13,8 @@ int main(int argc, char * argv[])
 	//TRATAMIENTO ARGUMENTOS
 	//...
 
+	// He puesto un comentario
+
 	//PRIORIDAD DEL PROCESO NORMAL --> IDLE
 	if (SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS) == false) {
 		perror("SetPriorityClass");
